@@ -1,0 +1,84 @@
+pom.xml >>maven build 
+goals: clean package
+o/p:- jar file has been created in target
+**********************************************************************************
+open docker desktop
+go to path where pom.xml file exist 
+create a docker file 
+<<<<<Dockerfile>>>>>
+**********************************************************************************
+# Use an official JDK runtime as a parent image
+FROM openjdk:11-jre-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the JAR file from the target directory to the container
+COPY target/xrae-accounts-api-0.0.1-SNAPSHOT.jar /app/xrae-accounts-api.jar
+
+# Expose the port your Spring Boot app runs on
+EXPOSE 8080
+
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "xrae-accounts-api.jar"]
+
+**********************************************************************************
+cmd to build image from docker file
+
+docker build -t xrae-accounts-api .
+**********************************************************************************
+check images 
+
+docker images 
+**********************************************************************************
+create deployment.yml file
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xrae-accounts-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xrae-accounts-api
+  template:
+    metadata:
+      labels:
+        app: xrae-accounts-api
+    spec:
+      containers:
+        - name: xrae-accounts-api
+          image: xrae-accounts-api:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xrae-accounts-api-service
+spec:
+  selector:
+    app: xrae-accounts-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+
+
+
+**********************************************************************************
+kubectl apply -f deployment.yaml
+
+**********************************************************************************
+Check the status of your deployment and service:
+
+kubectl get deployments
+kubectl get services
+
+**********************************************************************************
+
+
+
+
